@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>document.documentElement.classList.add("js");(function(m){if(m)document.documentElement.dataset.theme=m[1]})(document.cookie.match(/(?:^|; )interimm-theme=(light|dark)/))</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Solar Port | InterImm</title>
+<meta name="description" content="Drag the sky to see where the planets are right now. Pick two of them to see the next launch window, flight time, fare and signal delay, then collect your boarding pass.">
+<link rel="canonical" href="https://interimm.org/solar-port/en/">
+<link rel="alternate" hreflang="zh-CN" href="https://interimm.org/solar-port/">
+<link rel="alternate" hreflang="en" href="https://interimm.org/solar-port/en/">
+<link rel="icon" href="../assets/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" href="../assets/favicon-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<!-- Shared InterImm look (colours, fonts, header, footer, toolkit), served by interimm.org. See
+     https://github.com/InterImm/interimm.github.io/blob/hugo/kit/README.md -->
+<link rel="stylesheet" href="https://interimm.org/kit/interimm.css?v=20261004">
+<link rel="stylesheet" href="../css/port.css?v=20261004">
+<script src="https://interimm.org/kit/interimm.js?v=20261004" defer></script>
+<script type="module" src="../js/portal.js?v=20261004"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- Header: replaced with the live interimm.org menu by the kit script; this markup is the fallback.
+     data-toolkit adds the floating toolkit button; js/portal.js adds this page's tools to its panel. -->
+<header class="site-header" data-interimm-header data-lang="en" data-current="archives" data-no-signal data-toolkit data-lang-cn="https://interimm.org/solar-port/" data-lang-en="https://interimm.org/solar-port/en/">
+  <div class="wrap header-inner">
+    <a class="brand" href="https://interimm.org/en/">
+      <img class="brand-mark" src="../assets/favicon-96x96.png" alt="" width="32" height="32">
+      <span class="brand-name">Interplanetary Immigration Center</span>
+    </a>
+  </div>
+</header>
+
+<main id="main" class="wrap port">
+  <section class="intro" id="top">
+    <p class="kicker" data-t="eyebrow">Solar Port · flights and freight</p>
+    <h1 data-t="h1">Leave from here for any port in the solar system</h1>
+    <p class="lede" data-t="lede">Drag the sky to see where the planets are right now. Pick two of them to see the next launch window, flight time, fare and signal delay, then collect your boarding pass.</p>
+  </section>
+
+  <div class="grid">
+    <section class="panel sky" id="sky-panel" aria-labelledby="sky-title">
+      <div class="panel-head">
+        <h2 id="sky-title" data-t="sky">Sky</h2>
+        <div class="seg push" role="group">
+          <button type="button" id="scaleC" aria-pressed="true" data-t="compressed">Compressed</button>
+          <button type="button" id="scaleR" aria-pressed="false" data-t="trueScale">True scale</button>
+        </div>
+        <div class="seg" role="group">
+          <button type="button" id="v3" aria-pressed="true">3D</button>
+          <button type="button" id="v2" aria-pressed="false">2D</button>
+        </div>
+      </div>
+      <div class="sky-box">
+        <canvas id="sky" role="img" aria-label="Sky"></canvas>
+        <p class="legend" data-t="legend">Drag to turn · click a planet to set origin or destination</p>
+      </div>
+      <div class="timebar">
+        <button class="chip-btn" id="play" type="button" data-t="play">▶ Fast-forward</button>
+        <input type="range" id="scrub" min="-730" max="1460" value="0" step="1" aria-label="Story">
+        <p class="dates"><span id="dStory"></span><small id="dReal"></small></p>
+      </div>
+    </section>
+
+    <section class="panel desk" id="desk" aria-labelledby="desk-title">
+      <div class="panel-head"><h2 id="desk-title" data-t="desk">Trip inquiry</h2></div>
+      <form id="q" onsubmit="return false">
+        <div class="route">
+          <label class="f"><span data-t="from">From</span><select id="from"></select></label>
+          <button type="button" class="swap" id="swap" aria-label="Swap origin and destination" title="Swap origin and destination">⇄</button>
+          <label class="f"><span data-t="to">To</span><select id="to"></select></label>
+        </div>
+        <div class="kind" role="radiogroup">
+          <label><input type="radio" name="kind" value="pax" checked><span data-t="pax">Passenger</span></label>
+          <label><input type="radio" name="kind" value="cargo"><span data-t="cargo">Freight</span></label>
+          <label><input type="radio" name="kind" value="msg"><span data-t="msg">Message only</span></label>
+        </div>
+        <div class="f" id="speedBox"><span data-t="speed">Speed class</span><div class="speed" id="speed"></div></div>
+        <label class="f" id="massBox" hidden><span data-t="mass">Cargo mass (kg)</span><input type="number" id="mass" value="1200" min="1" inputmode="numeric"></label>
+      </form>
+      <div class="result">
+        <dl class="kv" id="kv"></dl>
+        <p class="note" id="why"></p>
+        <label class="f"><span data-t="name">Your name</span><input type="text" id="name" maxlength="40" autocomplete="name" placeholder="Name on the boarding pass"></label>
+        <div class="row">
+          <button class="btn btn-primary" type="button" id="book" data-t="book">Get boarding pass</button>
+          <button class="btn" type="button" id="ping" data-t="ping">Send a message</button>
+        </div>
+      </div>
+      <div class="arrival" id="arrival"></div>
+    </section>
+  </div>
+
+  <div class="lower">
+    <section class="panel" id="departures" aria-labelledby="board-title">
+      <div class="panel-head"><h2 id="board-title" data-t="board">Departures</h2><span class="push note" data-t="boardNote">By departure · story time</span></div>
+      <div class="board-wrap"><table class="board">
+        <thead><tr><th data-t="flight">Flight</th><th data-t="ship">Ship</th><th data-t="route">Route</th><th data-t="departs">Departs</th><th data-t="duration">Flight time</th><th data-t="state">Status</th></tr></thead>
+        <tbody id="board"></tbody>
+      </table></div>
+    </section>
+    <section class="panel" id="inflight" aria-labelledby="ships-title">
+      <div class="panel-head"><h2 id="ships-title" data-t="inflight">Ships in flight</h2></div>
+      <div class="ships" id="ships"></div>
+    </section>
+  </div>
+</main>
+
+<nav hidden data-toolkit-links data-toolkit-title="Contents">
+  <a href="#sky-panel">Sky</a><a href="#desk">Trip inquiry</a><a href="#departures">Departures</a><a href="#inflight">Ships in flight</a>
+</nav>
+
+<dialog id="dlg" aria-label="Interplanetary boarding pass">
+  <div class="pass" id="pass"></div>
+  <div class="pass-actions">
+    <button class="btn" type="button" id="copy" data-t="copy">Copy share link</button>
+    <button class="btn btn-primary" type="button" id="close" data-t="close">Got it</button>
+  </div>
+</dialog>
+<p class="toast" id="toast" role="status" hidden></p>
+
+<!-- Footer: replaced with the live interimm.org footer by the kit script; this markup is the fallback. -->
+<footer class="site-footer" data-interimm-footer>
+  <div class="wrap"><p>Interplanetary Immigration Center · <a href="https://github.com/InterImm/solar-port">Source</a></p></div>
+</footer>
+</body>
+</html>
