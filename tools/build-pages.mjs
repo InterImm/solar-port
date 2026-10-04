@@ -8,7 +8,7 @@ import { TEXT } from '../js/strings.js';
 
 const SITE = 'https://interimm.org/solar-port/';
 const KIT = 'https://interimm.org/kit';
-export const VERSION = '20261004';
+export const VERSION = '20261004b';
 
 const head = ({ lang, title, description, root, canonical, extra = '' }) => `<!doctype html>
 <html lang="${lang === 'cn' ? 'zh-CN' : 'en'}">
@@ -221,7 +221,8 @@ ${header('cn', TEXT.cn, root)}
         <h3>设定（虚构）</h3>
         <ul>
           <li>港口名称和代码、飞船名、航班号、甲板和舱房、印章。</li>
-          <li>运价公式的系数（上面这张表）和货币 CR。</li>
+          <li>运价公式的系数（上面这张表）。</li>
+          <li>货币 MC：按脉冲星时间发行，每个纪元向每位登记居民发放同样数额，没有挖矿和印钞；每颗行星有自己的账本，跨行星转账在发出端锁定、凭光速传来的证明在接收端释放。票款按普通转账结算。</li>
         </ul>
       </div>
     </div>

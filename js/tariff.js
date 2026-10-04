@@ -5,7 +5,7 @@
 import { pathAU } from './transfer.js';
 
 export const DEFAULT_TARIFF = {
-    currency: 'CR',
+    currency: 'MC',
     passenger: { base: 20000, perDv: 6000, dvExp: 2, perAU: 15000, perDay: 150, round: 100 },
     freightPerKg: { base: 2, perDv: 0.9, dvExp: 2, perAU: 0.5, perDay: 0, round: 1 },
     classMultiplier: { eco: 1, exp: 1.1, torch: 1.25 },
