@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<script>document.documentElement.classList.add("js");(function(m){if(m)document.documentElement.dataset.theme=m[1]})(document.cookie.match(/(?:^|; )interimm-theme=(light|dark)/))</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>运价与计算说明 | 太阳系星港</title>
+<meta name="description" content="内部页面">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../assets/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" href="../assets/favicon-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<!-- Shared InterImm look (colours, fonts, header, footer, toolkit), served by interimm.org. See
+     https://github.com/InterImm/interimm.github.io/blob/hugo/kit/README.md -->
+<link rel="stylesheet" href="https://interimm.org/kit/interimm.css?v=20261004">
+<link rel="stylesheet" href="../css/port.css?v=20261004">
+<script src="https://interimm.org/kit/interimm.js?v=20261004" defer></script>
+<script type="module" src="../js/ops.js?v=20261004"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到正文</a>
+
+<!-- Header: replaced with the live interimm.org menu by the kit script; this markup is the fallback.
+     data-toolkit adds the floating toolkit button; js/portal.js adds this page's tools to its panel. -->
+<header class="site-header" data-interimm-header data-lang="cn" data-current="archives" data-no-signal data-toolkit data-lang-cn="https://interimm.org/solar-port/" data-lang-en="https://interimm.org/solar-port/en/">
+  <div class="wrap header-inner">
+    <a class="brand" href="https://interimm.org/">
+      <img class="brand-mark" src="../assets/favicon-96x96.png" alt="" width="32" height="32">
+      <span class="brand-name">星际移民中心</span>
+    </a>
+  </div>
+</header>
+
+<main id="main" class="wrap port ops">
+  <section class="intro">
+    <p class="kicker">内部 · 不对外链接 · Internal, not linked</p>
+    <h1>运价与计算说明</h1>
+    <p class="lede">给运营者看的页面：调整运价系数、对比三个速度等级，并核对星港上每个数字是怎么来的。这里的改动只在你的浏览器里预览；要上线，把 tariff.json 复制到仓库里提交。</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>运价规则 · Tariff</h2>
+      <label class="push f inline"><span>航线</span><select id="opsFrom"></select></label>
+      <label class="f inline"><span>→</span><select id="opsTo"></select></label>
+    </div>
+    <div class="tariff-body">
+      <div>
+        <p class="formula" id="formula"></p>
+        <table class="coef">
+          <thead><tr><th>系数</th><th>乘客</th><th>货运 / 公斤</th></tr></thead>
+          <tbody id="coefs"></tbody>
+        </table>
+        <div class="mults" id="mults"></div>
+      </div>
+      <div>
+        <table class="breakdown" id="breakdown"></table>
+        <p class="note" id="opsNote"></p>
+        <div class="row">
+          <button class="btn" type="button" id="tCopy">复制 tariff.json</button>
+          <button class="btn" type="button" id="tLive">载入线上版本</button>
+          <button class="btn" type="button" id="tApply">应用下方 JSON</button>
+        </div>
+        <textarea id="tjson" spellcheck="false" aria-label="tariff.json"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel methods">
+    <div class="panel-head"><h2>每个数字怎么来的 · Method</h2></div>
+    <div class="methods-body">
+      <div>
+        <h3>计算得出</h3>
+        <ul>
+          <li><b>行星位置</b>：JPL 近似轨道根数（Standish 表 1，1800–2050 年有效），三维，黄道 J2000。地球和火星与星际物流项目同一套代码，并有 JPL Horizons 数据的测试。谷神星用取整的根数，只作布景。</li>
+          <li><b>距离和信号延时</b>：两颗行星的直线距离除以光速。</li>
+          <li><b>发射窗口、航程、Δv</b>：用星际物流项目的兰伯特求解器（Izzo 方法）在出发日期和航程上搜索最省 Δv 的转移。经济：航程为霍曼时间的 0.8–1.1 倍，一个会合周期内出发；快线：0.45–0.6 倍，120 天内出发；急行：0.22–0.32 倍，42 天内出发。</li>
+          <li><b>飞行距离</b>：沿转移轨道的实际路径长度。</li>
+          <li><b>火星协调时和火星日</b>：Mars24 公式，与火星时钟项目一致。</li>
+          <li><b>出发航班和在途飞船</b>：按霍曼转移的窗口推算，所以每个人看到同一张时刻表。</li>
+          <li><b>火星开放设施</b>：直接读取 interimm.org/mars-open-facilities 的实时数据。</li>
+        </ul>
+      </div>
+      <div>
+        <h3>简化</h3>
+        <ul>
+          <li>Δv 是日心 Δv：离开出发行星轨道和并入目的行星轨道的速度变化之和，不含起飞和降落，那取决于港口而不是航线。</li>
+          <li>故事日期 = 现实日期 + 70,491 天。星图画的是现实中此刻的天空，因为轨道根数只在 2050 年前准确。</li>
+          <li>只算单圈、顺行、脉冲点火，不算借力飞行。</li>
+        </ul>
+        <h3>设定（虚构）</h3>
+        <ul>
+          <li>港口名称和代码、飞船名、航班号、甲板和舱房、印章。</li>
+          <li>运价公式的系数（上面这张表）和货币 CR。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer: replaced with the live interimm.org footer by the kit script; this markup is the fallback. -->
+<footer class="site-footer" data-interimm-footer>
+  <div class="wrap"><p>星际移民中心 · <a href="https://github.com/InterImm/solar-port">源代码</a></p></div>
+</footer>
+</body>
+</html>

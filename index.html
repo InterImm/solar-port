@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<script>document.documentElement.classList.add("js");(function(m){if(m)document.documentElement.dataset.theme=m[1]})(document.cookie.match(/(?:^|; )interimm-theme=(light|dark)/))</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>太阳系星港 | 星际移民中心</title>
+<meta name="description" content="拖动星图看行星此刻的位置，点两颗行星查询航线：下一个发射窗口、航程、运价和信号延时，然后领取你的登机牌。">
+<link rel="canonical" href="https://interimm.org/solar-port/">
+<link rel="alternate" hreflang="zh-CN" href="https://interimm.org/solar-port/">
+<link rel="alternate" hreflang="en" href="https://interimm.org/solar-port/en/">
+<link rel="icon" href="assets/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" href="assets/favicon-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<!-- Shared InterImm look (colours, fonts, header, footer, toolkit), served by interimm.org. See
+     https://github.com/InterImm/interimm.github.io/blob/hugo/kit/README.md -->
+<link rel="stylesheet" href="https://interimm.org/kit/interimm.css?v=20261004">
+<link rel="stylesheet" href="css/port.css?v=20261004">
+<script src="https://interimm.org/kit/interimm.js?v=20261004" defer></script>
+<script type="module" src="js/portal.js?v=20261004"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到正文</a>
+
+<!-- Header: replaced with the live interimm.org menu by the kit script; this markup is the fallback.
+     data-toolkit adds the floating toolkit button; js/portal.js adds this page's tools to its panel. -->
+<header class="site-header" data-interimm-header data-lang="cn" data-current="archives" data-no-signal data-toolkit data-lang-cn="https://interimm.org/solar-port/" data-lang-en="https://interimm.org/solar-port/en/">
+  <div class="wrap header-inner">
+    <a class="brand" href="https://interimm.org/">
+      <img class="brand-mark" src="assets/favicon-96x96.png" alt="" width="32" height="32">
+      <span class="brand-name">星际移民中心</span>
+    </a>
+  </div>
+</header>
+
+<main id="main" class="wrap port">
+  <section class="intro" id="top">
+    <p class="kicker" data-t="eyebrow">太阳系星港 · 航班与物流查询</p>
+    <h1 data-t="h1">从这里出发，去太阳系的任何一个港口</h1>
+    <p class="lede" data-t="lede">拖动星图看行星此刻的位置，点两颗行星查询航线：下一个发射窗口、航程、运价和信号延时，然后领取你的登机牌。</p>
+  </section>
+
+  <div class="grid">
+    <section class="panel sky" id="sky-panel" aria-labelledby="sky-title">
+      <div class="panel-head">
+        <h2 id="sky-title" data-t="sky">星图</h2>
+        <div class="seg push" role="group">
+          <button type="button" id="scaleC" aria-pressed="true" data-t="compressed">压缩比例</button>
+          <button type="button" id="scaleR" aria-pressed="false" data-t="trueScale">真实比例</button>
+        </div>
+        <div class="seg" role="group">
+          <button type="button" id="v3" aria-pressed="true">3D</button>
+          <button type="button" id="v2" aria-pressed="false">2D</button>
+        </div>
+      </div>
+      <div class="sky-box">
+        <canvas id="sky" role="img" aria-label="星图"></canvas>
+        <p class="legend" data-t="legend">拖动旋转 · 点击行星设为出发地或目的地</p>
+      </div>
+      <div class="timebar">
+        <button class="chip-btn" id="play" type="button" data-t="play">▶ 快进</button>
+        <input type="range" id="scrub" min="-730" max="1460" value="0" step="1" aria-label="故事时间">
+        <p class="dates"><span id="dStory"></span><small id="dReal"></small></p>
+      </div>
+    </section>
+
+    <section class="panel desk" id="desk" aria-labelledby="desk-title">
+      <div class="panel-head"><h2 id="desk-title" data-t="desk">行程查询</h2></div>
+      <form id="q" onsubmit="return false">
+        <div class="route">
+          <label class="f"><span data-t="from">出发</span><select id="from"></select></label>
+          <button type="button" class="swap" id="swap" aria-label="对调出发和到达" title="对调出发和到达">⇄</button>
+          <label class="f"><span data-t="to">到达</span><select id="to"></select></label>
+        </div>
+        <div class="kind" role="radiogroup">
+          <label><input type="radio" name="kind" value="pax" checked><span data-t="pax">乘客</span></label>
+          <label><input type="radio" name="kind" value="cargo"><span data-t="cargo">货运</span></label>
+          <label><input type="radio" name="kind" value="msg"><span data-t="msg">只发消息</span></label>
+        </div>
+        <div class="f" id="speedBox"><span data-t="speed">速度等级</span><div class="speed" id="speed"></div></div>
+        <label class="f" id="massBox" hidden><span data-t="mass">货物质量（公斤）</span><input type="number" id="mass" value="1200" min="1" inputmode="numeric"></label>
+      </form>
+      <div class="result">
+        <dl class="kv" id="kv"></dl>
+        <p class="note" id="why"></p>
+        <label class="f"><span data-t="name">你的名字</span><input type="text" id="name" maxlength="40" autocomplete="name" placeholder="写在登机牌上的名字"></label>
+        <div class="row">
+          <button class="btn btn-primary" type="button" id="book" data-t="book">领取登机牌</button>
+          <button class="btn" type="button" id="ping" data-t="ping">发一条消息</button>
+        </div>
+      </div>
+      <div class="arrival" id="arrival"></div>
+    </section>
+  </div>
+
+  <div class="lower">
+    <section class="panel" id="departures" aria-labelledby="board-title">
+      <div class="panel-head"><h2 id="board-title" data-t="board">出发航班</h2><span class="push note" data-t="boardNote">按出发时间排序 · 故事时间</span></div>
+      <div class="board-wrap"><table class="board">
+        <thead><tr><th data-t="flight">航班</th><th data-t="ship">飞船</th><th data-t="route">航线</th><th data-t="departs">出发</th><th data-t="duration">航程</th><th data-t="state">状态</th></tr></thead>
+        <tbody id="board"></tbody>
+      </table></div>
+    </section>
+    <section class="panel" id="inflight" aria-labelledby="ships-title">
+      <div class="panel-head"><h2 id="ships-title" data-t="inflight">在途飞船</h2></div>
+      <div class="ships" id="ships"></div>
+    </section>
+  </div>
+</main>
+
+<nav hidden data-toolkit-links data-toolkit-title="目录">
+  <a href="#sky-panel">星图</a><a href="#desk">行程查询</a><a href="#departures">出发航班</a><a href="#inflight">在途飞船</a>
+</nav>
+
+<dialog id="dlg" aria-label="星际旅行登机牌">
+  <div class="pass" id="pass"></div>
+  <div class="pass-actions">
+    <button class="btn" type="button" id="copy" data-t="copy">复制分享链接</button>
+    <button class="btn btn-primary" type="button" id="close" data-t="close">收好了</button>
+  </div>
+</dialog>
+<p class="toast" id="toast" role="status" hidden></p>
+
+<!-- Footer: replaced with the live interimm.org footer by the kit script; this markup is the fallback. -->
+<footer class="site-footer" data-interimm-footer>
+  <div class="wrap"><p>星际移民中心 · <a href="https://github.com/InterImm/solar-port">源代码</a></p></div>
+</footer>
+</body>
+</html>
